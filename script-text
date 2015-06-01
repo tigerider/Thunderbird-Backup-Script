@@ -7,28 +7,32 @@
 
 # echo için -e argümanı, \t gibi özel karakterin kullanılmasına izin veriyor (escape)
 
-echo -e yedekleme başladı'\t'\: `date +%d.%m.%y-%T` >> ~/Genel/backuplog 
+BEKAPPATH = ~/Genel/yedekler/posta
 
-# Thunderbird altındaki dizini belirtmeye gerek yok, önemli başka bir şey yok
-# Betik TB olan başka Linux makinalarda da kullanılabilir, 
-#+ profil bilgisi gerekli olmaz
-# Profil adı yoldan çıkarılınca, ilk çalıştırmada şu mesaj:
-# tar: /home/basri/.thunderbird/7'xxxxxxx'.default: dosya okundu olarak imlendi
-# ???????
+echo -e yedekleme başladı'\t'\: `date +%d.%m.%y-%T` >> $BEKAPPATH/meyl.bekap.log
 
-tar -cvpzf ~/Genel/TB_ydk_$(date +%Y%m%d).tar.gz ~/.thunderbird/*
+tar -cvpzf $BEKAPPATH/Evol_ydk_$(date +%Y%m%d).tar.gz ~/.local/share/evolution/*
 
-echo -e yedekleme tamamlandı'\t'\: `date +%d.%m.%y-%T` >> ~/Genel/backuplog
+echo -e yedekleme tamamlandı'\t'\: `date +%d.%m.%y-%T` >> $BEKAPPATH/meyl.bekap.log
 echo 2 gün önceki yedek siliniyor 
 sleep 3
-ESKIDOSYA=$(`~/Genel/TB_ydk_$(date +%Y%m%d --date="2 days ago").tar.gz`)
-echo $ESKIDOSYA
-if [ -f $ESKIDOSYA ]
+OLDBEKAPFILE=`echo ~/Genel/yedekler/posta/Evol_ydk_$(date +%Y%m%d --date="2 days ago").tar.gz`
+echo $OLDBEKAPFILE
+if [ -f $OLDBEKAPFILE ]
 then 
-    rm -f $ESKIDOSYA && echo -e Silinen yedeğin tarihi'\t'\: $(date +%d.%m.%Y --date="2 days ago") >> ~/Genel/backuplog
+    rm -f $OLDBEKAPFILE && echo -e Silinen yedeğin tarihi'\t'\: $(date +%d.%m.%Y --date="2 days ago") >> $BEKAPPATH/meyl.bekap.log
 else 
-    echo Silinecek 2 gün öncesi tarihli bir dosya bulunamadı. Birşey silinmeyecek. >> ~/Genel/backuplog
+    echo Silinecek 2 gün öncesi tarihli bir dosya bulunamadı. Birşey silinmeyecek. >> $BEKAPPATH/meyl.bekap.log
 fi
+
+# if test -f /tmp/testfile.log 
+# then
+#    echo "File exists"
+# fi
+
+*/ 
+[ -f ~/Genel/yedekler/posta/meyl.bekap.log ] && echo "File exists" || echo "Fİle no existo!"
+/*
 
 exit
 
