@@ -30,9 +30,9 @@ fi
 #    echo "File exists"
 # fi
 
-*/ 
+: ' 
 [ -f ~/Genel/yedekler/posta/meyl.bekap.log ] && echo "File exists" || echo "Fİle no existo!"
-/*
+'
 
 exit
 
