@@ -5,61 +5,37 @@
 # yedekleme başladı	: 09.05.14-22:17:38
 # yedekleme tamamlandı	: 09.05.14-22:19:14
 
-# echo için -e argümanı, \t gibi özel karakterin kullanılmasına izin veriyor (escape)
+# echo için -e argümanı, \t yani tab gibi özel 
+#+ karakterlerin kullanılmasına izin veriyor (kaçış kar.)
 
-echo -e yedekleme başladı'\t'\: `date +%d.%m.%y-%T` >> ~/Genel/backuplog 
+# Posta programı seçimi (sıkıştırılacak dizini seçmek için)
+echo "Kullandığın posta programını seç:"
+select tbev in "Evolution" "Thunderbird"; do
+    case $tbev in
+        Evolution ) BEKAPDIR=`echo ~/.local/share/evolution/*` ; break;;
+        Thunderbird ) BEKAPDIR=`echo ~/.thunderbird/*`;;
+    esac
+done
 
-# Thunderbird altındaki dizini belirtmeye gerek yok, önemli başka bir şey yok
-# Betik TB olan başka Linux makinalarda da kullanılabilir, 
-#+ profil bilgisi gerekli olmaz
-# Profil adı yoldan çıkarılınca, ilk çalıştırmada şu mesaj:
-# tar: /home/basri/.thunderbird/7'xxxxxxx'.default: dosya okundu olarak imlendi
-# ???????
+BEKAPPATH=~/Genel/yedekler/posta
+echo sıkıştırma ve yedekleme yapılıyor ...
+echo -e yedekleme başladı'\t'\: `date +%d.%m.%y-%T` >> $BEKAPPATH/meyl.bekap.log | tee $BEKAPPATH/meyl.bekap.log
 
-tar -cvpzf ~/Genel/TB_ydk_$(date +%Y%m%d).tar.gz ~/.thunderbird/*
+tar -cpzf $BEKAPPATH/Meyl_Ydk_$(date +%Y%m%d).tar.gz $BEKAPDIR/*
 
-echo -e yedekleme tamamlandı'\t'\: `date +%d.%m.%y-%T` >> ~/Genel/backuplog
-echo 2 gün önceki yedek siliniyor 
-sleep 3
-ESKIDOSYA=$(`~/Genel/TB_ydk_$(date +%Y%m%d --date="2 days ago").tar.gz`)
-echo $ESKIDOSYA
-if [ -f $ESKIDOSYA ]
+echo -e yedekleme tamamlandı'\t'\: `date +%d.%m.%y-%T` | tee $BEKAPPATH/meyl.bekap.log
+echo 2 gün önceki yedek aranıyor, varsa silinecek... 
+sleep 1
+OLDBEKAPFILE=`echo $BEKAPPATH/Meyl_Ydk_$(date +%Y%m%d --date="2 days ago").tar.gz`
+
+# echo Eski yedek dosyası\: $OLDBEKAPFILE
+
+if test -f $OLDBEKAPFILE
 then 
-    rm -f $ESKIDOSYA && echo -e Silinen yedeğin tarihi'\t'\: $(date +%d.%m.%Y --date="2 days ago") >> ~/Genel/backuplog
+    rm -f $OLDBEKAPFILE
+    echo -e silinen yedeğin tarihi'\t'\: $(date +%d.%m.%Y --date="2 days ago") >> $BEKAPPATH/meyl.bekap.log
 else 
-    echo Silinecek 2 gün öncesi tarihli bir dosya bulunamadı. Birşey silinmeyecek. >> ~/Genel/backuplog
+    echo -e 2 gün önceden yedek yok'\t'\: birşey silinmedi. >> $BEKAPPATH/meyl.bekap.log
 fi
 
 exit
-
-# Burada (en sonda) şu ifadeyi yazıyor: 
-# 2 gün önceki yedek siliniyor
-# meyl.bekap.sh: satır 24: /home/basri/Genel/TB_ydk_20150425.tar.gz: Böyle bir dosya ya da dizin yok
-
-# Silinecek 2 gün öncesi tarihli dosya var mı kontrol et:
-
-# if [ -e veya -f "$eskiDosya" ] --> -e : file exists , -f : file is a real file
-# then
-#    rm $eskiDosya
-#    echo -e Silinen yedeğin tarihi'\t'\: $(date +%d.%m.%Y --date="2 days ago") >> ~/Genel/backuplog
-# else 
-#    echo -e Silinecek 2 gün öncesi tarihli bir dosya bulunamadı. >> ~/Genel/backuplog
-# fi
-
-# Silmek için şu daha mı iyi olur?: mv TB_ydk_$(date vs vs).tar.gz /dev/null
-
-# Feature wishlist:
-# Silinen olmasa da silinen yedeğin tarihi yazıyor, dosya ancak varsa silsin. -- TAMAM
-# Log dosyasında belli satır sayısına ulaştyığında baştan satır silmeye başla
-# Yedekleme sonrası aynı yerdeki bir önceki/daha önceki yedek 
-#+ dosyalarının silinmesi eklenecek: TAMAMDIR
-# 2 gün ve 1 gün önceki yedekler korunup daha önceki tarihli 
-#+ tüm yedeklerin silinmesi -- for loop olur sanırım
-# 
-# Kütüğün bitti bilgisinin postayla yollanması sonra eklenecek
-# MAILTO=eposta@adresi.com 
-
-# Mutlak ve göreceli yollar konusu
-# Herhangi bir dizinde çalıştırma
-
-# Kullanıcıdan girdi alıp dosya adlandırma
