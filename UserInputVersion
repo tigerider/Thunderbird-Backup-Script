@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# log dosyasına başladı-bitti bilgisi yazılır, tarih ve saatle.
+# örnek:
+# yedekleme başladı	: 09.05.14-22:17:38
+# yedekleme tamamlandı	: 09.05.14-22:19:14
+
+# echo için -e argümanı, \t yani tab gibi özel 
+#+ karakterlerin kullanılmasına izin veriyor (kaçış kar.)
+
+# Posta programı seçimi (sıkıştırılacak dizini seçmek için)
+echo "Kullandığın posta programını seç:"
+select tbev in "Evolution" "Thunderbird"; do
+    case $tbev in
+        Evolution ) BEKAPDIR=`echo ~/.local/share/evolution/*` ; break;;
+        Thunderbird ) BEKAPDIR=`echo ~/.thunderbird/*`;;
+    esac
+done
+
+BEKAPPATH=~/Genel/yedekler/posta
+echo sıkıştırma ve yedekleme yapılıyor ...
+echo -e yedekleme başladı'\t'\: `date +%d.%m.%y-%T` >> $BEKAPPATH/meyl.bekap.log | tee $BEKAPPATH/meyl.bekap.log
+
+tar -cpzf $BEKAPPATH/Meyl_Ydk_$(date +%Y%m%d).tar.gz $BEKAPDIR/*
+
+echo -e yedekleme tamamlandı'\t'\: `date +%d.%m.%y-%T` | tee $BEKAPPATH/meyl.bekap.log
+echo 2 gün önceki yedek aranıyor, varsa silinecek... 
+sleep 1
+OLDBEKAPFILE=`echo $BEKAPPATH/Meyl_Ydk_$(date +%Y%m%d --date="2 days ago").tar.gz`
+
+# echo Eski yedek dosyası\: $OLDBEKAPFILE
+
+if test -f $OLDBEKAPFILE
+then 
+    rm -f $OLDBEKAPFILE
+    echo -e silinen yedeğin tarihi'\t'\: $(date +%d.%m.%Y --date="2 days ago") >> $BEKAPPATH/meyl.bekap.log
+else 
+    echo -e 2 gün önceden yedek yok'\t'\: birşey silinmedi. >> $BEKAPPATH/meyl.bekap.log
+fi
+
+exit
