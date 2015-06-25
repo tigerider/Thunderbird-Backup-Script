@@ -1,5 +1,13 @@
 #! /bin/bash
 
+# Could be much faster to back up only what has been changed since last back-up
+# Dedicate directory for expansion of last existing back-up
+# Expand there
+# Run an RSync between current TB directories and the expanded last backed-up directories, updating them
+# Tar and compress again when done
+# Takes too long tarring, so no benefit here????
+
+
 # log dosyasına başladı-bitti bilgisi yazılır, tarih ve saatle.
 # örnek:
 # yedekleme başladı	: 09.05.14-22:17:38
