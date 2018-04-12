@@ -1,32 +1,49 @@
 #!/usr/bin/env bash
 
 START_TIME=$(date +%T) 
+#!/usr/bin/env bash
+
+# This is a simple, home-cooked script to back up my Thunderbird profile, compress it into a tar.gz archive.
+
+# To be run from CLI while at the directory where you want to keep the archive
+
 # start time for reporting upon completion of back-up
+START_TIME=$(date +%T) 
 
 echo -e "Started back-up:\t" $START_TIME "please be patient; this may take a while..."
 
+#start a timer to count seconds until completion, via SECONDS, a built-in bash function 
 SECONDS=0
-#start a timer to count seconds until completion, via SECONDS, a built-in function 
 
-tar cpzf MailBackUp_$(date +%Y%m%d).tar.gz ~/.thunderbird/* 1> /dev/null  2>> $(pwd)/yedekErr.log
+# StdErr will be sent (appended) to ~/myScripts/yedekErr.log later, for now: send to null 
+tar cpzf MailBackUp_$(date +%Y%m%d).tar.gz ~/.thunderbird/* 1> /dev/null  2>&1
 
-FINISH_TIME=$(date +%T)
 # finish time for reporting upon completion of back-up
+FINISH_TIME=$(date +%T)
 
 #stop timer now!
 elapsedTime=$SECONDS
 
 sleep 1
 
-echo -e $(date +%F) "\t S:" $START_TIME "\t F:" $FINISH_TIME "\t T: $(( $elapsedTime / 60 )) min & $(( $elapsedTime % 60 )) s" | tee -a $(pwd)/yedekle.log
-
 # report stats: start time, finish time, duration
 # Piping to "Tee" so results are sent to stdout and log file both
 # Piping to "Tee" with -a allows APPENDING, not overwriting file contents
+echo -e $(date +%F) "\t S:" $START_TIME "\t F:" $FINISH_TIME "\t T: $(( $elapsedTime / 60 )) min & $(( $elapsedTime % 60 )) s" | tee -a ~/myScripts/yedekle.log
 
 sleep 1
+BackupSize=$(du -h MailBackUp_$(date +%Y%m%d).tar.gz | cut -f 1)
+echo "backup completed, "MailBackUp_$(date +%Y%m%d).tar.gz" was generated, file size is "$BackupSize
 echo "exiting now..."
 exit
+
+########################### Feature wishlist ###########################
+# 1. aynı adlı yedek dosyası var mı kontrol et; varsa uyarı çıkar
+# (üstüne yazılacak)
+# log dosyası belirtilen adreste (myScripts) var mı kontrol et, yoksa
+# oluşturulacağını bildir
+
+# 2. oluşturulan yedek dosyasının adını ve dosya boyutunu bildir - OK
 
 ############################################################
 # time formats:
